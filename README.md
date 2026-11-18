@@ -63,7 +63,7 @@ pip install -r requirements.txt
 
 ### Étape 4 : Déployer l'infrastructure locale MongoDB via Docker
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 *Pour vérifier que le conteneur tourne correctement :*
 ```bash
