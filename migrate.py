@@ -58,7 +58,7 @@ def run_migration():
     collection = db[COLLECTION_NAME]
     
     # 4. Création des index pertinents pour la recherche médicale
-    print("index Création des index (Medical Condition, Age)...")
+    print("⚙️ Création des index (Medical Condition, Age)...")
     collection.create_indexes([
         IndexModel([("Medical Condition", ASCENDING)]),
         IndexModel([("Age", ASCENDING)])
