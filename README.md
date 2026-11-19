@@ -25,44 +25,44 @@ medical-project/
 ├── test_migration.py          # Suite de tests d'intégrité automatisée (Pytest)
 ├── requirements.txt           # Liste des dépendances Python (pandas, pymongo, pytest)
 └── README.md                  # Documentation technique détaillée du projet
+```
+
+##  🛠️ 3. Technologies et Stack Technique
 
 
-  ##  🛠️ 3. Technologies et Stack Technique
-Langage de programmation : Python 3.11
-Traitement & Nettoyage de données : pandas (nettoyage des colonnes, typage numérique/dates, conversion BSON)
-Pilote MongoDB : pymongo (insertion par lots insert_many et indexation B-Tree)
-Conteneurisation : Docker Desktop, Dockerfile, Docker Compose
-Tests unitaires & Intégrité : pytest
-Base de données NoSQL : MongoDB (Local), Amazon DocumentDB (Cible Cloud AWS)
+- **Langage de programmation :** Python 3.x
+- **Traitement de données :** `pandas` (lecture CSV et conversion BSON)
+- **Pilote MongoDB :** `pymongo`
+- **Conteneurisation :** Docker Desktop, Docker Compose (Image officielle `mongo:7.0`)
+- **Tests unitaires & Intégrité :** `pytest`
+- **Base de données NoSQL :** MongoDB 7.0 (Local), Amazon DocumentDB (Cible Cloud AWS)
+---
 
-###🚀 4. Guide d'Installation et d'Exécution Pas-à-Pas
-Prérequis Système
-Docker Desktop installé et démarré.
-(Optionnel pour exécution locale) Python 3.10+ et pip configurés.
-Option A : Exécution 100 % Conteneurisée via Docker Compose (Recommandé)
-Se placer dans le dossier du projet :
-Bash
+## 🚀 4. Guide d'Installation et d'Exécution Pas-à-Pas
+
+
+### Prérequis Système
+- **Docker Desktop** installé et démarré.
+
+
+### Étape 1 :Se placer dans le dossier du projet (Exécution 100 % Conteneurisée via Docker Compose (Recommandé)):
+```bash
 cd ~/Desktop/medical-project
-Construire l'image et lancer l'infrastructure complète (MongoDB + Pipeline ETL) :
-Bash
+```
+
+### Étape 2 :Construire l'image et lancer l'infrastructure complète (MongoDB + Pipeline ETL) :
+```bash
 docker compose up --build
+```
+*Pour vérifier que le conteneur tourne correctement :*
+```bash
+docker ps
+```
+
 Docker va automatiquement démarrer le conteneur mongodb-local, construire l'image de migration-app via le Dockerfile, et exécuter la migration de bout en bout.
-Option B : Exécution Locale via Environnement Virtuel (venv)
-Initialiser et activer l'environnement virtuel Python :
-Bash
-python3 -m venv venv
-source venv/bin/activate
-Installer les dépendances nécessaires :
-Bash
-pip install -r requirements.txt
-Démarrer uniquement la base de données MongoDB :
-Bash
-docker compose up -d mongodb
-Exécuter le pipeline de migration des données :
-Bash
-python migrate.py
-Résultat attendu dans la console :
-Plaintext
+
+*Résultat attendu dans la console :*
+```text
 ============================================================
 🚀 DÉBUT DE LA MIGRATION VERS MONGODB
 ============================================================
@@ -83,14 +83,18 @@ Plaintext
 ✅ MIGRATION TERMINÉE AVEC SUCCÈS !
 📊 Total de documents dans MongoDB : 55500
 ============================================================
-Étape de Validation : Lancer la suite d'assurance qualité (pytest)
-Bash
+```
+
+### Étape 3: Lancer la suite d'assurance qualité (pytest)
+```bash
 pytest test_migration.py
-🔍 5. Conception et Modélisation NoSQL
-🔍 5. Conception et Modélisation NoSQL
+```
+
+## 🔍 5. Conception et Modélisation NoSQL
 Structure des Données (medical_db / patients)
 Chaque ligne du CSV original est nettoyée, typée (conversion des dates et valeurs numériques, gestion des valeurs nulles NaN vers None) et convertie en un document JSON/BSON structuré au format suivant :
-JSON
+
+```json
 {
   "_id": ObjectId("654321abcdef1234567890ab"),
   "Name": "Bobby Jackson",
@@ -109,39 +113,51 @@ JSON
   "Medication": "Paracetamol",
   "Test Results": "Normal"
 }
-Stratégie d'Indexation et Performance
+```
+
+### Stratégie d'Indexation et Performance
 Optimisation mémoire : Insertion par lots (chunks) de 10 000 documents (BATCH_SIZE = 10000) via insert_many().
 Indexation B-Tree : Pour accélérer les requêtes analytiques et filtrages médicaux fréquents, des index ascendants ont été configurés sur les champs Medical Condition et Age :
-Python
+
+```Python
 collection.create_indexes([
     IndexModel([("Medical Condition", ASCENDING)]),
     IndexModel([("Age", ASCENDING)])
 ])
-🧪 6. Plan d'Assurance Qualité & Tests d'Intégrité (test_migration.py)
+```
+
+## 🧪 6. Plan d'Assurance Qualité & Tests d'Intégrité (`test_migration.py`)
+
 La validation du pipeline repose sur 3 tests automatisés exécutés avec Pytest :
-test_mongo_connection : Établit un ping d'administration pour confirmer la réactivité du service MongoDB.
-test_document_count : Compare dynamiquement le nombre de lignes du fichier CSV source (
-N
-=
-55
- 
-500
-N=55 500) avec le nombre de documents comptabilisés dans la collection patients.
-test_sample_document_integrity : Valide le schéma d'un document échantillon en vérifiant la présence et la conformité des champs critiques (Name, Medical Condition, Billing Amount).
-☁️ 7. Architecture Cible & Stratégie Cloud (AWS)
-Pour répondre aux enjeux de montée en charge, de haute disponibilité et de sécurité des données de santé (HDS / HIPAA), l'infrastructure conteneurisée est prête à être déployée sur le Cloud AWS :
-Plaintext
+
+1. **`test_mongo_connection` :** Établit un ping d'administration pour confirmer la réactivité du service MongoDB.
+2. **`test_document_count` :** Compare dynamiquement le nombre de lignes du fichier CSV source ($N = 55\ 500$) avec le nombre de documents comptabilisés dans la collection `patients`.
+3. **`test_sample_document_integrity` :** Valide le schéma d'un document échantillon en vérifiant la présence et la conformité des champs critiques (`Name`, `Medical Condition`, `Billing Amount`).
+
+---
+
+## ☁️ 7. Architecture Cible & Stratégie Cloud (AWS)
+
+Pour répondre aux enjeux de montée en charge, de haute disponibilité et de sécurité des données de santé (HDS / HIPAA), l'infrastructure est prête à être migrée sur le Cloud **AWS** :
+
+```text
 [ Fichier CSV ] ──> [ Amazon S3 ] ──> [ AWS Fargate (ECS) ] ──> [ Amazon DocumentDB ]
- (Source Brute)     (Bucket Privé)     (Conteneur Docker)       (Cluster NoSQL Multi-AZ)
-Composant Cible AWS	Rôle et Justification Technique
-Amazon S3	Stockage sécurisé (KMS SSE-S3), durable (99,999999999%) et économique des fichiers CSV sources.
-Amazon DocumentDB	Base NoSQL distribuée fully-managed compatible MongoDB. Gestion automatique des sauvegardes, réplication multi-AZ et scalabilité horizontale.
-AWS Fargate (ECS)	Exécution serverless de l'image Docker construite via notre Dockerfile sans gestion ni maintenance des instances sous-jacentes.
-AWS KMS & IAM	Gestion fine des accès (Moindre Privilège) et chiffrement systématique des données au repos et en transit (TLS/SSL).
-📝 8. Journal de Bord & Suivi de Projet
-[x] Initialisation du repository (medical-project), configuration de .gitignore et de l'environnement virtuel (venv).
-[x] Conteneurisation complète via Dockerfile et orchestration multi-services via docker-compose.yml.
-[x] Écriture et optimisation du script ETL migrate.py (nettoyage, typage, indexation et insertion par lots de 55 500 documents).
-[x] Développement de la suite de tests automatisée test_migration.py (pytest).
-[x] Validation des critères d'intégrité de données.
-[x] Conception du dossier d'architecture pour le déploiement sur AWS.
+ (Source Brute)     (Bucket Privé)     (Task Ingestion)        (Cluster NoSQL Multi-AZ)
+```
+
+| Composant Cible AWS | Rôle et Justification Technique |
+| :--- | :--- |
+| **Amazon S3** | Stockage sécurisé (KMS SSE-S3), durable (99,999999999%) et économique des fichiers CSV sources. |
+| **Amazon DocumentDB** | Base NoSQL distribuée fully-managed compatible MongoDB. Gestion automatique des sauvegardes, réplication multi-AZ et scalabilité horizontale. |
+| **AWS Fargate (ECS)** | Exécution conteneurisée et *serverless* du script `migrate.py` sans gestion ni maintenance des instances sous-jacentes. |
+| **AWS KMS & IAM** | Gestion fine des accès (Moindre Privilège) et chiffrement systématique des données au repos et en transit (TLS/SSL). |
+
+---
+
+## 📝 8. Journal de Bord & Suivi de Projet
+- [x] Initialisation du repository (medical-project), configuration de .gitignore et de l'environnement virtuel (venv).
+- [x] Conteneurisation complète via Dockerfile et orchestration multi-services via docker-compose.yml.
+- [x] Écriture et optimisation du script ETL migrate.py (nettoyage, typage, indexation et insertion par lots de 55 500 documents).
+- [x] Développement de la suite de tests automatisée test_migration.py (pytest).
+- [x] Validation des critères d'intégrité de données.
+- [x] Conception du dossier d'architecture pour le déploiement sur AWS.
