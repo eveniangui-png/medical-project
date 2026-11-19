@@ -1,6 +1,6 @@
 services:
   mongodb:
-    image: mongo:latest
+    image: mongo:7.0
     container_name: mongodb-local
     ports:
       - "27017:27017"
@@ -14,6 +14,8 @@ services:
       - mongodb
     environment:
       - MONGO_URI=mongodb://mongodb:27017/medical_db
+      - DB_NAME=medical_db
+      - COLLECTION_NAME=patients
 
 volumes:
   mongodb_data:

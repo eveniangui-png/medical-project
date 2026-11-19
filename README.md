@@ -54,10 +54,6 @@ cd ~/Desktop/medical-project
 ```bash
 docker compose up --build
 ```
-*Pour vérifier que le conteneur tourne correctement :*
-```bash
-docker ps
-```
 
 Docker va automatiquement démarrer le conteneur mongodb-local, construire l'image de migration-app via le Dockerfile, et exécuter la migration de bout en bout.
 
@@ -84,10 +80,21 @@ Docker va automatiquement démarrer le conteneur mongodb-local, construire l'ima
 📊 Total de documents dans MongoDB : 55500
 ============================================================
 ```
-
-### Étape 3: Lancer la suite d'assurance qualité (pytest)
+*Pour vérifier que le conteneur tourne correctement :*
 ```bash
-pytest test_migration.py
+docker ps
+```
+
+### Étape 3 : Lancer la suite d'assurance qualité (pytest)
+
+Exécutez les tests d'intégration et de validation des données directement dans le conteneur `app` (sur le réseau interne Docker), afin d'éviter toute dépendance à l'environnement Python local :
+
+```bash
+docker compose run --rm -e MONGO_URI=mongodb://mongodb:27017/medical_db app pytest test_migration.py
+```
+*Pour vérifier que le script a bien fonctionné :*
+```bash
+docker compose run --rm -e MONGO_URI=mongodb://mongodb:27017/medical_db app pytest test_migration.py
 ```
 
 ## 🔍 5. Conception et Modélisation NoSQL
